@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONSULTA TRÁMITES</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            padding: 40px;
+        }
+
+        .caja {
+            max-width: 850px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            margin-bottom: 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .ayuda {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .resultado {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .no {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .error {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .info {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+    <div class="caja">
+        <h1>DOCUMENTOS LISTOS PARA RETIRAR</h1>
+
+        <form method="POST">
+            <label for="id_tramite">ID de trámite</label>
+            <input
+                type="text"
+                id="id_tramite"
+                name="id_tramite"
+                value="{{ id_tramite_buscado }}"
+                placeholder="Ej: 719495976"
+            >
+
+            <label for="numero_dni">Número de DNI</label>
+            <input
+                type="text"
+                id="numero_dni"
+                name="numero_dni"
+                value="{{ numero_dni_buscado }}"
+                placeholder="Ej: 34567890"
+            >
+
+            <label for="nombre">Nombre completo</label>
+            <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                value="{{ nombre_buscado }}"
+                placeholder="Ej: Juan Pérez"
+            >
+
+            <div class="ayuda">
+                La búsqueda prioriza primero ID de trámite, luego DNI y luego nombre completo.
+            </div>
+
+            <button type="submit">Consultar</button>
+        </form>
+
+        {% if resultado == "vacio" %}
+            <div class="resultado info">
+                Debes escribir un ID de trámite, un número de DNI o un nombre completo.
+            </div>
+
+        {% elif resultado == "encontrado" %}
+            <div class="resultado ok">
+                Registro(s) encontrado(s): {{ coincidencias|length }}
+
+                {% if tipo_busqueda == "id_tramite" %}
+                    <div style="margin-top: 8px; font-weight: normal;">
+                        Búsqueda realizada por ID de trámite
+                    </div>
+                {% elif tipo_busqueda == "numero_dni" %}
+                    <div style="margin-top: 8px; font-weight: normal;">
+                        Búsqueda realizada por número de DNI
+                    </div>
+                {% elif tipo_busqueda == "nombre" %}
+                    <div style="margin-top: 8px; font-weight: normal;">
+                        Búsqueda realizada por nombre completo
+                    </div>
+                {% endif %}
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipo de documento</th>
+                        <th>Identificador</th>
+                        <th>Nombre completo</th>
+                        <th>Fecha de arribo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fila in coincidencias %}
+                    <tr>
+                        <td>{{ fila.item_id }}</td>
+                        <td>{{ fila.identificador }}</td>
+                        <td>{{ fila.nombre_completo }}</td>
+                        <td>{{ fila.fecha_arribo }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% elif resultado == "no_encontrado" %}
+            <div class="resultado no">
+                No tiene documentación lista para retirar
+            </div>
+
+        {% elif resultado and resultado.startswith("error:") %}
+            <div class="resultado error">
+                {{ resultado }}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
