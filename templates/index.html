@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de documentos</title>
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f3f4f6;
+            padding: 40px;
+        }
+
+        .caja {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+        }
+
+        .resultado {
+            margin-top: 20px;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        .ok { background: #dcfce7; color: #166534; }
+        .no { background: #fee2e2; color: #991b1b; }
+        .info { background: #e0f2fe; color: #075985; }
+    </style>
+</head>
+
+<body>
+<div class="caja">
+
+    <h2>Consulta de documentos disponibles</h2>
+
+    <form method="POST">
+        <input
+            type="text"
+            name="id_tramite"
+            placeholder="Ingrese su ID de trámite"
+            value="{{ id_buscado }}"
+        >
+
+        <button type="submit">Consultar</button>
+    </form>
+
+    {% if resultado == "vacio" %}
+        <div class="resultado info">
+            Debe ingresar un ID de trámite.
+        </div>
+
+    {% elif resultado == "encontrado" %}
+        <div class="resultado ok">
+            Su documento se encuentra disponible para retiro.
+        </div>
+
+        {% for fila in coincidencias %}
+            <div style="margin-top:10px;">
+                Tipo: {{ fila.item_id }} <br>
+                Fecha de arribo: {{ fila.fecha_arribo }}
+            </div>
+        {% endfor %}
+
+    {% elif resultado == "no_encontrado" %}
+        <div class="resultado no">
+            Su documento aún no figura como recibido.
+        </div>
+    {% endif %}
+
+</div>
+</body>
+</html>
